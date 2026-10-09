@@ -1,0 +1,52 @@
+BÀI LÀM: THIẾT KẾ QUY TRÌNH DỌN DẸP DOWNLOADS THEO IPO
+Phần 1: Sơ đồ luồng IPO
+INPUT (Đầu vào)
+Danh sách file trong Downloads/
+File .png, .jpg, .py, .tmp và các file khác
+PROCESS (Xử lý)
+Phân loại file theo phần mở rộng
+Kiểm tra loại file, kiểm tra tên đích và xử lý lỗi
+OUTPUT (Đầu ra)
+.png, .jpg → media/
+.py → scripts/
+.tmp → Xóa file tạm
+Phần 2: Danh sách câu lệnh cho Robot
+Các lệnh dưới đây dùng cú pháp Bash trên Linux/macOS, dựa trên mv và rm đã học.
+Bước 1: Di chuyển vào Downloads và tạo thư mục đích
+cd ~/Downloads
+mkdir -p media scripts
+cd: chuyển đến thư mục Downloads.
+mkdir -p: tạo thư mục media và scripts nếu chưa có.
+Bước 2: Phân loại và xử lý file
+# Gom file anh
+for f in *.png *.jpg; do
+    [ -f "$f" ] || continue
+    if [ -d "media/$f" ]; then
+        echo "Bo qua: media/$f la thu muc"
+        continue
+    fi
+    mv -- "$f" media/
+done
+
+# Gom file Python
+for f in *.py; do
+    [ -f "$f" ] || continue
+    if [ -d "scripts/$f" ]; then
+        echo "Bo qua: scripts/$f la thu muc"
+        continue
+    fi
+    mv -- "$f" scripts/
+done
+
+# Xoa file tam
+for f in *.tmp; do
+    [ -f "$f" ] || continue
+    rm -- "$f"
+done
+Phần 3: Xử lý trường hợp lỗi “Is a directory”
+Nếu Robot gặp một thư mục trùng tên với file đích, Robot cần:
+Kiểm tra đường dẫn đích trước khi di chuyển bằng -d.
+Nếu đường dẫn đích là thư mục, bỏ qua file đó và ghi thông báo lỗi.
+Tiếp tục xử lý các file còn lại, không để một lỗi làm dừng toàn bộ quy trình.
+Trong kịch bản trên, if [ -d "media/$f" ] và if [ -d "scripts/$f" ] giúp Robot phát hiện thư mục trùng tên trước khi gọi mv.
+
